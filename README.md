@@ -51,7 +51,7 @@ python albion_orders_total.py --iface "INTERFACE NAME"
 
 ## Using the application
 
-1. Start the application.
+1. Start the application and **pick the city (market) you are in**.
 2. Start or switch to the Albion Online marketplace.
 3. Open **My Orders** and browse every page of your sell and buy orders.
 4. The captured orders appear in the **Sell Orders** and **Buy Orders** views.
@@ -66,13 +66,38 @@ The interface supports:
 
 ### Tracking multiple markets
 
-**Next Market** saves the current market, including its tax rate, then clears
-the current sell and buy orders. The new market starts empty and remains part
-of the **All Markets** total.
+When the application starts, it asks which market (city) you are in.
 
-**Reset** deletes all saved markets and the current market after confirmation.
-Saved markets exist only in memory, so export them before closing the
-application if you need to keep the data.
+**Next Market** asks for confirmation, then asks for the next city. It saves the
+current market (including its tax rate), clears the current sell and buy orders,
+and starts the new market empty. Every market stays part of the **All Markets**
+total, and the current market is always included in it.
+
+- Each city can be used **once**: Lymhurst, Fort Sterling, Thetford, Martlock,
+  Bridgewatch, Brecilien and Caerleon. A city that is already used is greyed out.
+- **Other** can be picked as many times as needed and is numbered:
+  Other 1, Other 2, Other 3...
+- Cancelling the city window cancels Next Market, nothing is saved.
+- Each city has its own colour in **All Markets** (dot, amount and bar).
+
+| City | Colour |
+| --- | --- |
+| Lymhurst | `#237a16` |
+| Fort Sterling | `#ffffff` |
+| Thetford | `#861c91` |
+| Martlock | `#225d94` |
+| Bridgewatch | `#c4630e` |
+| Brecilien | `#610225` |
+| Caerleon | `#000000` |
+| Other | `#403c3d` |
+
+The colours are defined in `CITY_COLORS` at the top of `albion_orders_total.py`.
+Very dark colours are lightened for the text and dot so they stay readable, and
+the bars sit on a lighter track so black and dark red remain visible.
+
+**Reset** deletes all saved markets and the current market after confirmation,
+then asks for your city again. Saved markets exist only in memory, so export
+them before closing the application if you need to keep the data.
 
 Only orders observed since the last reset or market transition are counted.
 This is not an automatic inventory: orders that disappear from the game are

@@ -16,8 +16,10 @@ Optional application icon: icon.png or icon.ico.
 Example Windows build (with coin.png present):
     pyinstaller --noconfirm --onefile --windowed --collect-all customtkinter --add-data "coin.png;." albion_orders_total.py
 
-Next Market saves a snapshot of the current market, including its tax rate,
-and starts an empty market. The live market is always included in All Markets.
+When the app starts it asks which city (market) you are in. Next Market saves a
+snapshot of the current market, including its tax rate, then asks for the next
+city: every city can be used once, except "Other" (Other 1, Other 2, ...).
+Each city has its own colour in the All Markets panel. Next Market starts an empty market. The live market is always included in All Markets.
 Reset clears saved markets AND the current market, after confirmation.
 Only orders observed since the last reset/market transition are counted.
 Revisit every page of your own orders for each market. This is not an automatic
@@ -373,6 +375,18 @@ BLUE = "#60a5fa"
 VIOLET = "#c084fc"
 RED = "#f87171"
 BAR_COLORS = [GOLD, "#fb923c", "#f472b6", VIOLET, BLUE, GREEN]
+CITY_COLORS = {
+    "Lymhurst": "#237a16",
+    "Fort Sterling": "#ffffff",
+    "Thetford": "#861c91",
+    "Martlock": "#225d94",
+    "Bridgewatch": "#c4630e",
+    "Brecilien": "#610225",
+    "Caerleon": "#000000",
+    "Other": "#403c3d",
+}
+TRACK = "#2b3143"        # background of the bars (so very dark city colours stay visible)
+TRACK_EDGE = "#4a5270"
 SEG_TAX = ["4 % (premium)", "8 % (no premium)"]
 SEG_VIEW = ["Sell orders", "Buy orders", "Console"]
 HEADS = {"item": "Item", "qty": "Quantity", "unit_price": "Unit price",
@@ -403,6 +417,34 @@ def compact(value):
 
 def net_total(gross, tax):
     return gross * (100 - tax) // 100
+
+
+def _rgb(color):
+    return tuple(int(color[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def _luminance(color):
+    red, green, blue = _rgb(color)
+    return (0.299 * red + 0.587 * green + 0.114 * blue) / 255
+
+
+def readable_color(color, minimum=0.45):
+    """Lighten very dark colours so text and dots stay readable on the dark theme."""
+    luminance = _luminance(color)
+    if luminance >= minimum:
+        return color
+    factor = (minimum - luminance) / (1 - luminance)
+    return "#%02x%02x%02x" % tuple(int(c + (255 - c) * factor) for c in _rgb(color))
+
+
+def text_on(color):
+    """Black or white text, whichever reads better on the given background."""
+    return "#0b0d13" if _luminance(color) > 0.55 else "#ffffff"
+
+
+def hover_of(color):
+    """Slightly lighter version of a colour for button hover."""
+    return "#%02x%02x%02x" % tuple(int(c + (255 - c) * 0.18) for c in _rgb(color))
 
 
 def resource_path(name):
@@ -573,39 +615,117 @@ class MarketsPanel(ctk.CTkFrame):
         self.scroll.grid(row=4, column=0, sticky="nsew", padx=12, pady=(0, 8))
         self.scroll.grid_columnconfigure(0, weight=1)
         self.widgets = []
-        ctk.CTkLabel(self, text="Next Market saves the current total.\nThe current market is always included.",
+        ctk.CTkLabel(self, text="Next Market saves the current total\nand asks for the next city.",
                      text_color=MUTED, font=("Segoe UI", 11), justify="left").grid(
                          row=5, column=0, sticky="w", padx=20, pady=(0, 16))
 
-    def set(self, saved, current):
-        values = [market["net"] for market in saved] + [current]
+    def set(self, saved, current, current_market=None):
+        entries = [(market.get("name", f"Market {index + 1}"), market.get("city", "Other"),
+                    market["net"], False) for index, market in enumerate(saved)]
+        if current_market:
+            entries.append((current_market["name"], current_market["city"], current, True))
+        else:
+            entries.append(("Select a market", "Other", current, True))
+        values = [entry[2] for entry in entries]
         total = sum(values)
         self.total_label.configure(text=f"{compact(total)} silver")
         self.detail_label.configure(text=f"{fmt(total)} silver · with taxes")
         self.count_label.configure(text=f"{len(saved)} saved + current market")
-        while len(self.widgets) < len(values):
+        while len(self.widgets) < len(entries):
             frame = ctk.CTkFrame(self.scroll, fg_color="transparent")
             frame.grid(row=len(self.widgets), column=0, sticky="ew", pady=(8, 10))
-            frame.grid_columnconfigure(0, weight=1)
+            frame.grid_columnconfigure(1, weight=1)
+            dot = ctk.CTkLabel(frame, text="●", width=16, font=("Segoe UI", 13))
+            dot.grid(row=0, column=0, sticky="w", padx=(0, 6))
             title = ctk.CTkLabel(frame, text="", font=("Segoe UI", 12), text_color=TEXT)
-            title.grid(row=0, column=0, sticky="w")
+            title.grid(row=0, column=1, sticky="w")
             amount = ctk.CTkLabel(frame, text="", font=("Segoe UI", 12, "bold"))
-            amount.grid(row=0, column=1, sticky="e", padx=(5, 0))
-            bar = ctk.CTkProgressBar(frame, height=8, fg_color=BORDER)
-            bar.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(7, 0))
-            self.widgets.append((frame, title, amount, bar))
-        while len(self.widgets) > len(values):
+            amount.grid(row=0, column=2, sticky="e", padx=(5, 0))
+            bar = ctk.CTkProgressBar(frame, height=8, fg_color=TRACK, border_width=1, border_color=TRACK_EDGE)
+            bar.grid(row=1, column=0, columnspan=3, sticky="ew", pady=(7, 0))
+            self.widgets.append((frame, dot, title, amount, bar))
+        while len(self.widgets) > len(entries):
             self.widgets.pop()[0].destroy()
         maximum = max(values) or 1
-        for index, (value, widgets) in enumerate(zip(values, self.widgets)):
-            _, title, amount, bar = widgets
-            color = BAR_COLORS[index % len(BAR_COLORS)]
-            live = index == len(saved)
-            title.configure(text=f"Market {index + 1}" + (" · current" if live else ""),
+        for (name, city, value, live), widgets in zip(entries, self.widgets):
+            _, dot, title, amount, bar = widgets
+            color = CITY_COLORS.get(city, CITY_COLORS["Other"])
+            shown = readable_color(color)
+            dot.configure(text_color=shown)
+            title.configure(text=name + (" · current" if live else ""),
                             text_color=GREEN if live else TEXT)
-            amount.configure(text=compact(value), text_color=color)
+            amount.configure(text=compact(value), text_color=shown)
             bar.configure(progress_color=color)
             bar.set(value / maximum)
+
+
+class CityDialog(ctk.CTkToplevel):
+    """Modal window to pick the market (city). Cities already used are disabled."""
+
+    def __init__(self, master, title, used, other_label, allow_cancel):
+        super().__init__(master)
+        self.result = None
+        self.allow_cancel = allow_cancel
+        self.title(title)
+        self.configure(fg_color=BG)
+        self.resizable(False, False)
+        self.transient(master)
+        self.protocol("WM_DELETE_WINDOW", self.cancel)
+        ctk.CTkLabel(self, text="Which market are you in?", font=("Segoe UI", 21, "bold"),
+                     text_color=TEXT).grid(row=0, column=0, columnspan=2, sticky="w", padx=28, pady=(24, 2))
+        ctk.CTkLabel(self, text="Each city can be used once. Use \"Other\" for anything else.",
+                     font=("Segoe UI", 12), text_color=MUTED).grid(
+                         row=1, column=0, columnspan=2, sticky="w", padx=28, pady=(0, 14))
+        for index, (city, color) in enumerate(CITY_COLORS.items()):
+            taken = city != "Other" and city in used
+            label = f"Other  ({other_label})" if city == "Other" else city
+            if taken:
+                label += "  ·  already used"
+            ctk.CTkButton(
+                self, text=label, width=210, height=46, corner_radius=12,
+                font=("Segoe UI", 13, "bold"),
+                fg_color=CARD if taken else color,
+                hover_color=CARD if taken else hover_of(color),
+                text_color=MUTED if taken else text_on(color),
+                border_width=1, border_color=TRACK_EDGE,
+                state="disabled" if taken else "normal",
+                command=lambda value=city: self.choose(value),
+            ).grid(row=2 + index // 2, column=index % 2, padx=(28 if index % 2 == 0 else 6, 6 if index % 2 == 0 else 28),
+                   pady=5, sticky="ew")
+        last_row = 2 + (len(CITY_COLORS) + 1) // 2
+        if allow_cancel:
+            ctk.CTkButton(self, text="Cancel", width=120, height=36, corner_radius=12, fg_color=CARD,
+                          hover_color=CARD_ALT, border_width=1, border_color=BORDER, text_color=TEXT,
+                          command=self.cancel).grid(row=last_row, column=0, columnspan=2, pady=(14, 22))
+        else:
+            ctk.CTkLabel(self, text="", height=14).grid(row=last_row, column=0)
+        self.update_idletasks()
+        try:
+            x = master.winfo_rootx() + (master.winfo_width() - self.winfo_reqwidth()) // 2
+            y = master.winfo_rooty() + (master.winfo_height() - self.winfo_reqheight()) // 2
+            self.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+        except tk.TclError:
+            pass
+        self.after(60, self._grab)
+
+    def _grab(self):
+        try:
+            self.grab_set()
+            self.focus_force()
+        except tk.TclError:
+            self.after(60, self._grab)
+
+    def choose(self, city):
+        self.result = city
+        self.grab_release()
+        self.destroy()
+
+    def cancel(self):
+        if not self.allow_cancel:
+            self.bell()
+            return
+        self.grab_release()
+        self.destroy()
 
 
 class AlbionApp(ctk.CTk):
@@ -622,6 +742,7 @@ class AlbionApp(ctk.CTk):
         self.sell = {}
         self.buy = {}
         self.markets = []
+        self.current_market = None   # {"city": ..., "name": ...}
         self.view = "sell"
         self.sort_states = {name: {"col": None, "phase": 0} for name in ("sell", "buy")}
         self.events = queue.Queue()
@@ -639,6 +760,7 @@ class AlbionApp(ctk.CTk):
         self._build()
         self.protocol("WM_DELETE_WINDOW", self.close)
         self.poll_job = self.after(200, self.poll)
+        self.after(350, self.prompt_start_city)
         if demo:
             self.set_status("Demo mode", GOLD)
             self._demo()
@@ -1010,9 +1132,14 @@ class AlbionApp(ctk.CTk):
     def gross(self):
         return sum(quantity * price for _, quantity, price in self.sell.values())
 
+    def current_name(self):
+        return self.current_market["name"] if self.current_market else "Select a market"
+
     def snapshot(self):
         gross = self.gross()
-        return {"number": len(self.markets) + 1, "gross": gross, "tax": self.tax,
+        market = self.current_market or {"city": "Other", "name": f"Market {len(self.markets) + 1}"}
+        return {"number": len(self.markets) + 1, "city": market["city"], "name": market["name"],
+                "gross": gross, "tax": self.tax,
                 "net": net_total(gross, self.tax), "sell": dict(self.sell), "buy": dict(self.buy),
                 "time": datetime.now().isoformat(timespec="seconds")}
 
@@ -1026,41 +1153,83 @@ class AlbionApp(ctk.CTk):
         self.sell.clear()
         self.buy.clear()
 
+    # --- city selection -------------------------------------------------
+    def used_cities(self):
+        used = {market.get("city") for market in self.markets}
+        if self.current_market:
+            used.add(self.current_market["city"])
+        return used
+
+    def other_count(self):
+        count = sum(1 for market in self.markets if market.get("city") == "Other")
+        if self.current_market and self.current_market["city"] == "Other":
+            count += 1
+        return count
+
+    def new_market_ident(self, city):
+        name = city if city != "Other" else f"Other {self.other_count() + 1}"
+        return {"city": city, "name": name}
+
+    def ask_city(self, title, allow_cancel):
+        dialog = CityDialog(self, title, self.used_cities(), f"Other {self.other_count() + 1}", allow_cancel)
+        self.wait_window(dialog)
+        return dialog.result
+
+    def prompt_start_city(self):
+        if self.closed or self.current_market is not None:
+            return
+        city = self.ask_city("Select your market", allow_cancel=False)
+        if city and not self.closed:
+            self.current_market = self.new_market_ident(city)
+            self.refresh()
+            self.say(f"Counting orders for {self.current_market['name']}.")
+
+    # --- markets --------------------------------------------------------
     def next_market(self):
         self.drain_events()
         self.refresh()
-        number = len(self.markets) + 1
+        current = self.snapshot()
         if not messagebox.askyesno("Next Market",
-                                  "Save the current total after tax and clear the current sell and buy orders?",
+                                  f"Save {current['name']} ({fmt(current['net'])} silver with taxes) "
+                                  "and clear the current sell and buy orders?",
                                   parent=self):
+            return
+        city = self.ask_city("Next market", allow_cancel=True)
+        if city is None:
             return
         with self.capture_lock:
             self.drain_events()
             saved = self.snapshot()
             self.markets.append(saved)
             self.clear_current()
+            self.current_market = None
+            self.current_market = self.new_market_ident(city)
         self.search_entry.delete(0, "end")
         if self.demo:
             self._demo()
         self.refresh()
-        self.say(f"Market {number} saved: {fmt(saved['net'])} silver with taxes. Market {number + 1} is current.")
+        self.say(f"{saved['name']} saved: {fmt(saved['net'])} silver with taxes. "
+                 f"Now counting {self.current_market['name']}.")
 
     def reset_data(self):
         if not messagebox.askyesno("Reset all markets",
                                   "Delete ALL saved markets and ALL current orders?\n\n"
-                                  "This cannot be undone. The next market will be Market 1.", parent=self):
+                                  "This cannot be undone. You will be asked to pick your market again.",
+                                  parent=self):
             return
         with self.capture_lock:
             self.markets.clear()
             self.clear_current()
+            self.current_market = None
         self.search_entry.delete(0, "end")
         self.refresh()
-        self.say("All markets cleared. Browse your own order pages to collect data again.")
+        self.say("All markets cleared. Pick your market, then browse your own order pages.")
+        self.after(100, self.prompt_start_city)
 
     def refresh(self):
         gross = self.gross()
         net = net_total(gross, self.tax)
-        self.hero.set(net, f"{fmt(net)} silver · after {self.tax}% tax · Market {len(self.markets) + 1}")
+        self.hero.set(net, f"{fmt(net)} silver · after {self.tax}% tax · {self.current_name()}")
         self.c_gross["value"].configure(text=compact(gross))
         self.c_gross["sub"].configure(text=f"{fmt(gross)} silver")
         self.c_tax["title"].configure(text=f"ESTIMATED TAX ({self.tax}%)")
@@ -1070,13 +1239,13 @@ class AlbionApp(ctk.CTk):
         self.c_orders["sub"].configure(text=f"sell orders · {len(self.buy)} buy orders")
         self.c_items["value"].configure(text=fmt(sum(quantity for _, quantity, _ in self.sell.values())))
         self.c_items["sub"].configure(text="total sell quantity")
-        self.market_panel.set(self.markets, net)
+        self.market_panel.set(self.markets, net, self.current_market)
         if self.view == "console":
             self.view_info.configure(text="Capture log")
             return
         store = self.sell if self.view == "sell" else self.buy
         total = sum(quantity * price for _, quantity, price in store.values())
-        self.view_info.configure(text=f"Market {len(self.markets) + 1} · {fmt(len(store))} orders · {fmt(total)} silver")
+        self.view_info.configure(text=f"{self.current_name()} · {fmt(len(store))} orders · {fmt(total)} silver")
         self.populate_tree(total)
 
     def populate_tree(self, total):
@@ -1135,7 +1304,7 @@ class AlbionApp(ctk.CTk):
                     output.write(f"ALL MARKETS WITH TAXES: {total} silver\n\n")
                     for index, market in enumerate(markets):
                         status = "current" if index == len(self.markets) else "saved"
-                        output.write(f"MARKET {market['number']} ({status})\n")
+                        output.write(f"{market['name'].upper()} ({status})\n")
                         output.write(f"Total with taxes ({market['tax']}%): {market['net']} silver\n")
                         for kind, key in (("SELL", "sell"), ("BUY", "buy")):
                             output.write(f"{kind} ORDERS\n")
@@ -1147,7 +1316,7 @@ class AlbionApp(ctk.CTk):
                     writer = csv.writer(output, delimiter=";")
                     writer.writerow(["Market", "Status", "Tax (%)", "Total with taxes"])
                     for index, market in enumerate(markets):
-                        writer.writerow([market["number"], "current" if index == len(self.markets) else "saved",
+                        writer.writerow([market["name"], "current" if index == len(self.markets) else "saved",
                                          market["tax"], market["net"]])
                     writer.writerow(["ALL MARKETS", "", "", total])
                     writer.writerow([])
@@ -1155,7 +1324,7 @@ class AlbionApp(ctk.CTk):
                     for market in markets:
                         for kind, key in (("Sell", "sell"), ("Buy", "buy")):
                             for oid, (item, quantity, price) in sorted(market[key].items(), key=lambda entry: -entry[1][1] * entry[1][2]):
-                                writer.writerow([market["number"], kind, oid, item, quantity, price, quantity * price])
+                                writer.writerow([market["name"], kind, oid, item, quantity, price, quantity * price])
             self.say(f"Export saved: {path}")
         except OSError as error:
             messagebox.showerror("Export error", str(error), parent=self)
