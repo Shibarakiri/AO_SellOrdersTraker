@@ -1,4 +1,4 @@
-"""Albion Orders Total - Made by Shibarakiri - v1.0.1
+"""Albion Orders Total - Made by Shibarakiri - v1.2.0
 
 Standalone replacement for albion_orders_total.py. No old script is needed.
 Dependencies: python -m pip install scapy customtkinter pillow
@@ -381,26 +381,36 @@ BAR_COLORS = [GOLD, "#fb923c", "#f472b6", VIOLET, BLUE, GREEN]
 # good on the dark UI. "accent" = bars/amounts/buttons, "tab" = selected tab, g1/g2/glow = main card.
 # "Other" keeps the original look of the app.
 CITY_THEMES = {
-    "Lymhurst": {"accent": "#4ade80", "tab": "#1f9d55", "on_accent": "#06210f",
-                 "g1": (14, 62, 44), "g2": (9, 34, 38), "glow": (74, 222, 128)},
-    "Fort Sterling": {"accent": "#dbeafe", "tab": "#5b82c0", "on_accent": "#0b1730",
-                      "g1": (54, 66, 98), "g2": (26, 36, 64), "glow": (219, 234, 254)},
-    "Thetford": {"accent": "#c084fc", "tab": "#8b3fd1", "on_accent": "#1c0933",
-                 "g1": (72, 26, 100), "g2": (36, 20, 72), "glow": (192, 132, 252)},
-    "Martlock": {"accent": "#38bdf8", "tab": "#1d7ac8", "on_accent": "#04162a",
-                 "g1": (14, 54, 112), "g2": (10, 28, 74), "glow": (56, 189, 248)},
-    "Bridgwatch": {"accent": "#fb923c", "tab": "#d9631a", "on_accent": "#2a1204",
-                   "g1": (100, 50, 14), "g2": (58, 28, 24), "glow": (251, 146, 60)},
-    "Brecilien": {"accent": "#f0689f", "tab": "#b8316c", "on_accent": "#2a0618",
-                  "g1": (94, 20, 60), "g2": (50, 14, 46), "glow": (240, 104, 159)},
-    "Caerleon": {"accent": "#ef4444", "tab": "#b91c1c", "on_accent": "#ffffff",
-                 "g1": (40, 36, 44), "g2": (12, 12, 16), "glow": (239, 68, 68)},
-    "Other": {"accent": "#60a5fa", "tab": "#60a5fa", "on_accent": "#0b0d13", "sel": "#2a3150",
-              "g1": (52, 36, 104), "g2": (20, 42, 92), "glow": (120, 96, 255)},
+    "Lymhurst": {"colors": ["#bef264", "#4ade80", "#2dd4bf"], "tab": "#1f9d55", "on_accent": "#06210f",
+                 "g1": (14, 62, 44), "g2": (9, 34, 38), "glow": (74, 222, 128), "glow2": (45, 212, 191)},
+    "Fort Sterling": {"colors": ["#ffffff", "#dbeafe", "#a5b4fc"], "tab": "#5b82c0", "on_accent": "#0b1730",
+                      "g1": (54, 66, 98), "g2": (26, 36, 64), "glow": (219, 234, 254), "glow2": (165, 180, 252)},
+    "Thetford": {"colors": ["#9333ea", "#7c3aed", "#5b21b6"], "tab": "#6d28d9", "on_accent": "#ffffff",
+                 "text": "#a78bfa", "g1": (58, 18, 102), "g2": (24, 10, 62),
+                 "glow": (124, 58, 237), "glow2": (88, 28, 135)},
+    "Martlock": {"colors": ["#7dd3fc", "#38bdf8", "#818cf8"], "tab": "#1d7ac8", "on_accent": "#04162a",
+                 "g1": (14, 54, 112), "g2": (10, 28, 74), "glow": (56, 189, 248), "glow2": (129, 140, 248)},
+    "Bridgwatch": {"colors": ["#fcd34d", "#fb923c", "#f87171"], "tab": "#d9631a", "on_accent": "#2a1204",
+                   "g1": (100, 50, 14), "g2": (58, 28, 24), "glow": (251, 146, 60), "glow2": (248, 113, 113)},
+    "Brecilien": {"colors": ["#f9a8d4", "#f0689f", "#c084fc"], "tab": "#b8316c", "on_accent": "#2a0618",
+                  "g1": (94, 20, 60), "g2": (50, 14, 46), "glow": (240, 104, 159), "glow2": (192, 132, 252)},
+    "Caerleon": {"colors": ["#dc2626", "#b91c1c", "#991b1b"], "tab": "#991b1b", "on_accent": "#ffffff",
+                 "text": "#f87171", "g1": (72, 12, 16), "g2": (18, 8, 10),
+                 "glow": (220, 38, 38), "glow2": (127, 29, 29)},
+    "Other": {"colors": ["#d1d5db", "#9ca3af", "#6b7280"], "tab": "#6b7280", "on_accent": "#0f1115",
+              "sel": "#343944", "text": "#b4bac4", "g1": (62, 64, 72), "g2": (26, 28, 34),
+              "glow": (156, 163, 175), "glow2": (107, 114, 128)},
 }
+for _theme in CITY_THEMES.values():
+    _theme["accent"] = _theme["colors"][1]          # the middle colour is the main one
+    _theme.setdefault("text", _theme["accent"])      # readable tone used for amounts on dark cards
 CITY_COLORS = {city: theme["accent"] for city, theme in CITY_THEMES.items()}
+DANGER_COLORS = ["#fca5a5", "#ef4444", "#dc2626"]
 TRACK = "#2b3143"        # background of the bars (so very dark city colours stay visible)
 TRACK_EDGE = "#4a5270"
+RADIUS_CARD = 18          # cards, panels, main card
+RADIUS_CONTROL = 12       # buttons, tabs, search box, tax selector
+CONTROL_HEIGHT = 38       # every control has the same height
 SEG_TAX = ["4 % (premium)", "8 % (no premium)"]
 SEG_VIEW = ["Sell orders", "Buy orders", "Console"]
 HEADS = {"item": "Item", "qty": "Quantity", "unit_price": "Unit price",
@@ -631,8 +641,12 @@ class Hero(tk.Canvas):
         ImageDraw.Draw(glow).ellipse((width * .55, -height * .55, width * 1.15, height * .75),
                                     fill=tuple(self.theme["glow"]) + (70,))
         image = Image.alpha_composite(image, glow.filter(ImageFilter.GaussianBlur(35)))
+        glow2 = Image.new("RGBA", (width, height))
+        ImageDraw.Draw(glow2).ellipse((-width * .12, height * .35, width * .42, height * 1.5),
+                                      fill=tuple(self.theme["glow2"]) + (60,))
+        image = Image.alpha_composite(image, glow2.filter(ImageFilter.GaussianBlur(40)))
         mask = Image.new("L", (width * 2, height * 2))
-        ImageDraw.Draw(mask).rounded_rectangle((0, 0, width * 2 - 1, height * 2 - 1), radius=40, fill=255)
+        ImageDraw.Draw(mask).rounded_rectangle((0, 0, width * 2 - 1, height * 2 - 1), radius=RADIUS_CARD * 2, fill=255)
         mask = mask.resize((width, height), Image.Resampling.LANCZOS)
         image = Image.composite(image, Image.new("RGBA", (width, height), BG), mask)
         self.background = ImageTk.PhotoImage(image)
@@ -684,31 +698,235 @@ class Hero(tk.Canvas):
             self.create_text(x, y, anchor="w", text=self.city_name, fill="white", font=self.sub_font)
 
 
+_GRAD_CACHE = {}
+_MASK_CACHE = {}
+
+
+def _gradient(width, height, stops):
+    """Horizontal gradient (RGB image) through the given #rrggbb colours."""
+    key = (width, height, tuple(stops))
+    if key not in _GRAD_CACHE:
+        if len(_GRAD_CACHE) > 300:
+            _GRAD_CACHE.clear()
+        count = max(width, 2)
+        colors = [_rgb(color) for color in stops]
+        segments = max(len(colors) - 1, 1)
+        strip = Image.new("RGB", (count, 1))
+        for x in range(count):
+            position = x / (count - 1) * segments
+            index = min(int(position), segments - 1)
+            fraction = position - index
+            first, second = colors[index], colors[min(index + 1, len(colors) - 1)]
+            strip.putpixel((x, 0), tuple(int(first[k] + (second[k] - first[k]) * fraction) for k in range(3)))
+        _GRAD_CACHE[key] = strip.resize((width, height), Image.Resampling.NEAREST)
+    return _GRAD_CACHE[key]
+
+
+def _round_mask(width, height, radius):
+    key = (width, height, int(radius))
+    if key not in _MASK_CACHE:
+        if len(_MASK_CACHE) > 300:
+            _MASK_CACHE.clear()
+        scale = 3
+        mask = Image.new("L", (width * scale, height * scale), 0)
+        ImageDraw.Draw(mask).rounded_rectangle((0, 0, width * scale - 1, height * scale - 1),
+                                               radius=int(radius) * scale, fill=255)
+        _MASK_CACHE[key] = mask.resize((width, height), Image.Resampling.LANCZOS)
+    return _MASK_CACHE[key]
+
+
+def _dim_image(image):
+    alpha = image.getchannel("A").point(lambda value: int(value * 0.4))
+    gray = image.convert("L")
+    return Image.merge("RGBA", (gray, gray, gray, alpha))
+
+
+class GradientBar(tk.Canvas):
+    """Rounded progress bar filled with a multi-colour gradient."""
+
+    def __init__(self, master, height=10, bg=CARD):
+        self._ui = master.winfo_fpixels("1i") / 96.0
+        self._h = max(int(height * self._ui), 4)
+        super().__init__(master, height=self._h, bg=bg, highlightthickness=0, bd=0)
+        self._bg = bg
+        self.fraction, self.colors = 0.0, None
+        self._photo, self._key = None, None
+        self.bind("<Configure>", lambda event: self.render())
+
+    def set(self, fraction, colors):
+        self.fraction, self.colors = max(0.0, min(1.0, fraction)), list(colors)
+        self.render()
+
+    def render(self):
+        width, height = self.winfo_width(), self._h
+        if width < 8 or not self.colors:
+            return
+        key = (width, round(self.fraction, 3), tuple(self.colors))
+        if key == self._key:
+            return
+        self._key = key
+        image = Image.new("RGB", (width, height), self._bg)
+        image.paste(Image.new("RGB", (width, height), TRACK), (0, 0), _round_mask(width, height, height // 2))
+        if self.fraction > 0:
+            fill = max(int(width * self.fraction), height)
+            image.paste(_gradient(fill, height, self.colors), (0, 0), _round_mask(fill, height, height // 2))
+        self._photo = ImageTk.PhotoImage(image)
+        self.delete("all")
+        self.create_image(0, 0, anchor="nw", image=self._photo)
+
+
+class GradientButton(tk.Canvas):
+    """Rounded button with a multi-colour gradient, optional icon and a hover glow."""
+
+    def __init__(self, master, text="", command=None, colors=("#60a5fa", "#a78bfa"), text_color="#0b0d13",
+                 icon=None, width=200, height=CONTROL_HEIGHT, radius=RADIUS_CONTROL,
+                 font=("Segoe UI", 12, "bold"), disabled=False, bg=CARD):
+        self._ui = master.winfo_fpixels("1i") / 96.0
+        super().__init__(master, width=int(width * self._ui), height=int(height * self._ui), bg=bg,
+                         highlightthickness=0, bd=0, cursor="arrow" if disabled else "hand2")
+        self.text, self.command = text, command
+        self.colors, self.text_color = list(colors), text_color
+        self.icon, self.radius, self.disabled, self._bg = icon, radius, disabled, bg
+        # negative size = pixels, like the other (customtkinter) widgets
+        self.font = tkfont.Font(family=font[0], size=-max(int(font[1] * self._ui), 1), weight=font[2])
+        self._hover, self._key, self._photo, self._icon_photo = False, None, None, None
+        self.bind("<Configure>", lambda event: self.render())
+        self.bind("<Enter>", lambda event: self._set_hover(True))
+        self.bind("<Leave>", lambda event: self._set_hover(False))
+        self.bind("<ButtonRelease-1>", self._release)
+
+    def set_style(self, colors=None, text_color=None):
+        if colors is not None:
+            self.colors = list(colors)
+        if text_color is not None:
+            self.text_color = text_color
+        self._key = None
+        self.render()
+
+    def _set_hover(self, value):
+        if not self.disabled:
+            self._hover = value
+            self.render()
+
+    def _release(self, event):
+        inside = 0 <= event.x < self.winfo_width() and 0 <= event.y < self.winfo_height()
+        if inside and not self.disabled and self.command:
+            self.command()
+
+    def render(self):
+        width, height = self.winfo_width(), self.winfo_height()
+        if width < 8 or height < 8:
+            return
+        colors = ["#1a1f2d", "#1a1f2d"] if self.disabled else self.colors
+        key = (width, height, tuple(colors), self._hover, self.disabled, self.text_color, self.text)
+        if key == self._key:
+            return
+        self._key = key
+        body = _gradient(width, height, colors)
+        if self._hover:
+            body = Image.blend(body, Image.new("RGB", body.size, "#ffffff"), 0.18)
+        image = Image.new("RGB", (width, height), self._bg)
+        image.paste(body, (0, 0), _round_mask(width, height, int(self.radius * self._ui)))
+        self._photo = ImageTk.PhotoImage(image)
+        self.delete("all")
+        self.create_image(0, 0, anchor="nw", image=self._photo)
+        fill = MUTED if self.disabled else self.text_color
+        text_width = self.font.measure(self.text)
+        icon_width, gap = 0, int(10 * self._ui)
+        if self.icon is not None:
+            size = int(height * 0.58)
+            source = _dim_image(self.icon) if self.disabled else self.icon
+            self._icon_photo = ImageTk.PhotoImage(source.resize((size, size), Image.Resampling.LANCZOS))
+            icon_width = size + gap
+        x = (width - icon_width - text_width) / 2
+        if self.icon is not None:
+            self.create_image(x, height / 2, anchor="w", image=self._icon_photo)
+        self.create_text(x + icon_width, height / 2, anchor="w", text=self.text, fill=fill, font=self.font)
+
+
+def attach_click(widget, command, hover_frame=None, hover_color=None):
+    """Make a widget and everything inside it clickable (hand cursor, optional hover border)."""
+
+    def enter(_event=None):
+        if hover_frame is not None and hover_color is not None:
+            try:
+                hover_frame.configure(border_color=hover_color())
+            except tk.TclError:
+                pass
+
+    def leave(_event=None):
+        if hover_frame is None:
+            return
+
+        def check():
+            try:
+                x, y = hover_frame.winfo_pointerxy()
+                left, top = hover_frame.winfo_rootx(), hover_frame.winfo_rooty()
+                inside = (left <= x < left + hover_frame.winfo_width()
+                          and top <= y < top + hover_frame.winfo_height())
+                if not inside:
+                    hover_frame.configure(border_color=BORDER)
+            except tk.TclError:
+                pass
+        hover_frame.after(40, check)
+
+    def walk(node):
+        if isinstance(node, ctk.CTkScrollbar):
+            return
+        try:
+            node.bind("<Button-1>", lambda event: command(), add="+")
+            node.bind("<Enter>", enter, add="+")
+            node.bind("<Leave>", leave, add="+")
+        except Exception:
+            pass
+        try:
+            node.configure(cursor="hand2")
+        except Exception:
+            pass
+        for child in node.winfo_children():
+            walk(child)
+
+    walk(widget)
+
+
+# Expanded (click to enlarge) views: which value of each market is shown
+EXPAND_VIEWS = {
+    "all": {"title": "All Markets", "sub": "Total with taxes", "key": "net", "money": True},
+    "gross": {"title": "Before tax", "sub": "Total before taxes", "key": "gross", "money": True},
+    "tax": {"title": "Estimated tax", "sub": "Taxes over all markets", "key": "tax_amount", "money": True},
+    "orders": {"title": "Orders", "sub": "Sell orders", "key": "orders", "money": False, "unit": "orders"},
+    "items": {"title": "Items", "sub": "Total quantity", "key": "items", "money": False, "unit": "items"},
+}
+
+
 class MarketsPanel(ctk.CTkFrame):
     def __init__(self, master):
-        super().__init__(master, width=320, fg_color=CARD, corner_radius=18,
+        super().__init__(master, width=320, fg_color=CARD, corner_radius=RADIUS_CARD,
                          border_width=1, border_color=BORDER)
         self.grid_propagate(False)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(4, weight=1)
+        self.on_open, self.hover_color = None, None
         ctk.CTkLabel(self, text="ALL MARKETS", text_color=MUTED,
                      font=("Segoe UI", 12, "bold")).grid(row=0, column=0, sticky="w", padx=20, pady=(17, 0))
         self.total_label = ctk.CTkLabel(self, text="0 silver", text_color=GOLD,
                                        font=("Segoe UI", 28, "bold"))
         self.total_label.grid(row=1, column=0, sticky="w", padx=20)
-        self.detail_label = ctk.CTkLabel(self, text="0 silver · with taxes", text_color=MUTED,
+        self.detail_label = ctk.CTkLabel(self, text="0 silver", text_color=MUTED,
                                         font=("Segoe UI", 11))
         self.detail_label.grid(row=2, column=0, sticky="w", padx=20)
         self.count_label = ctk.CTkLabel(self, text="0 saved + current market", text_color=MUTED,
                                        font=("Segoe UI", 11))
         self.count_label.grid(row=3, column=0, sticky="w", padx=20, pady=(0, 7))
         self.scroll = ctk.CTkScrollableFrame(self, fg_color="transparent", corner_radius=0)
-        self.scroll.grid(row=4, column=0, sticky="nsew", padx=12, pady=(0, 8))
+        self.scroll.grid(row=4, column=0, sticky="nsew", padx=12, pady=(0, 14))
         self.scroll.grid_columnconfigure(0, weight=1)
         self.widgets = []
-        ctk.CTkLabel(self, text="Next Market saves the current total\nand asks for the next city.",
-                     text_color=MUTED, font=("Segoe UI", 11), justify="left").grid(
-                         row=5, column=0, sticky="w", padx=20, pady=(0, 16))
+
+    def bind_open(self, command, hover_color):
+        """Click anywhere on the panel to run command (opens the enlarged view)."""
+        self.on_open, self.hover_color = command, hover_color
+        attach_click(self, command, self, hover_color)
 
     def set(self, saved, current, current_market=None):
         entries = [(market.get("name", f"Market {index + 1}"), market.get("city", "Other"),
@@ -720,7 +938,7 @@ class MarketsPanel(ctk.CTkFrame):
         values = [entry[2] for entry in entries]
         total = sum(values)
         self.total_label.configure(text=f"{compact(total)} silver")
-        self.detail_label.configure(text=f"{fmt(total)} silver · with taxes")
+        self.detail_label.configure(text=f"{fmt(total)} silver")
         self.count_label.configure(text=f"{len(saved)} saved + current market")
         while len(self.widgets) < len(entries):
             frame = ctk.CTkFrame(self.scroll, fg_color="transparent")
@@ -732,22 +950,22 @@ class MarketsPanel(ctk.CTkFrame):
             title.grid(row=0, column=1, sticky="w")
             amount = ctk.CTkLabel(frame, text="", font=("Segoe UI", 12, "bold"))
             amount.grid(row=0, column=2, sticky="e", padx=(5, 0))
-            bar = ctk.CTkProgressBar(frame, height=8, fg_color=TRACK, border_width=1, border_color=TRACK_EDGE)
+            bar = GradientBar(frame, height=10, bg=CARD)
             bar.grid(row=1, column=0, columnspan=3, sticky="ew", pady=(7, 0))
             self.widgets.append((frame, dot, title, amount, bar))
+            if self.on_open:
+                attach_click(frame, self.on_open, self, self.hover_color)
         while len(self.widgets) > len(entries):
             self.widgets.pop()[0].destroy()
         maximum = max(values) or 1
         for (name, city, value, live), widgets in zip(entries, self.widgets):
             _, dot, title, amount, bar = widgets
-            color = CITY_COLORS.get(city, CITY_COLORS["Other"])
-            shown = readable_color(color)
+            theme = CITY_THEMES.get(city, CITY_THEMES["Other"])
             dot.configure(image=city_icon(city, 22), text="")
             title.configure(text=name + (" · current" if live else ""),
                             text_color=GREEN if live else TEXT)
-            amount.configure(text=compact(value), text_color=shown)
-            bar.configure(progress_color=color)
-            bar.set(value / maximum)
+            amount.configure(text=compact(value), text_color=theme["text"])
+            bar.set(value / maximum, theme["colors"])
 
 
 class AlbionApp(ctk.CTk):
@@ -783,6 +1001,7 @@ class AlbionApp(ctk.CTk):
         self._set_icon()
         self._style()
         self._build()
+        self._wire_clicks()
         self.protocol("WM_DELETE_WINDOW", self.close)
         self.poll_job = self.after(200, self.poll)
         self.after(350, self.prompt_start_city)
@@ -813,7 +1032,7 @@ class AlbionApp(ctk.CTk):
                         rowheight=34, borderwidth=0, font=("Segoe UI", 10))
         style.configure("Treeview.Heading", background=CARD_ALT, foreground=MUTED, relief="flat",
                         borderwidth=0, font=("Segoe UI", 9, "bold"), padding=(8, 9))
-        style.map("Treeview", background=[("selected", "#2a3150")], foreground=[("selected", TEXT)])
+        style.map("Treeview", background=[("selected", CITY_THEMES["Other"]["sel"])], foreground=[("selected", TEXT)])
         style.map("Treeview.Heading", background=[("active", CARD_ALT)])
         style.layout("Treeview", [("Treeview.treearea", {"sticky": "nswe"})])
 
@@ -825,12 +1044,12 @@ class AlbionApp(ctk.CTk):
         header.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(header, text="Albion Orders Total", font=("Segoe UI", 26, "bold"),
                      text_color=TEXT).grid(row=0, column=0, sticky="w")
-        ctk.CTkLabel(header, text="Made by Shibarakiri - v1.0.1", font=("Segoe UI", 12),
+        ctk.CTkLabel(header, text="Made by Shibarakiri - v1.2.0", font=("Segoe UI", 12),
                      text_color=MUTED).grid(row=1, column=0, sticky="w")
         self.status = ctk.CTkLabel(header, text="● Starting…", font=("Segoe UI", 12, "bold"),
-                                  text_color=GOLD, fg_color=CARD, corner_radius=16, height=34, padx=16)
+                                  text_color=GOLD, fg_color=CARD, corner_radius=RADIUS_CONTROL, height=CONTROL_HEIGHT, padx=16)
         self.status.grid(row=0, column=1, rowspan=2)
-        self.banner = ctk.CTkFrame(self, fg_color="#3a2a14", corner_radius=14,
+        self.banner = ctk.CTkFrame(self, fg_color="#3a2a14", corner_radius=RADIUS_CONTROL,
                                    border_width=1, border_color="#6b4a1a")
         self.banner.grid(row=1, column=0, sticky="ew", padx=28, pady=(0, 8))
         self.banner.grid_columnconfigure(0, weight=1)
@@ -861,20 +1080,18 @@ class AlbionApp(ctk.CTk):
 
         controls = ctk.CTkFrame(self, fg_color="transparent")
         controls.grid(row=3, column=0, sticky="ew", padx=28, pady=(8, 10))
-        for text, command, width in (("Reset", self.reset_data, 110),
-                                      ("Export", self.export_details, 110),
-                                      ("Next Market", self.next_market, 145)):
-            accent = text == "Next Market"
-            button = ctk.CTkButton(controls, text=text, command=command, width=width, height=38,
-                                   corner_radius=12, fg_color=BLUE if accent else CARD,
-                                   hover_color="#4588db" if accent else CARD_ALT,
-                                   border_width=1, border_color=BORDER, text_color=BG if accent else TEXT,
-                                   font=("Segoe UI", 12, "bold"))
-            button.pack(side="left", padx=(0, 10))
-            if accent:
-                self.next_button = button
+        for text, command in (("Reset", self.reset_data), ("Export", self.export_details)):
+            ctk.CTkButton(controls, text=text, command=command, width=110, height=CONTROL_HEIGHT,
+                          corner_radius=RADIUS_CONTROL, fg_color=CARD, hover_color=CARD_ALT, border_width=1,
+                          border_color=BORDER, text_color=TEXT,
+                          font=("Segoe UI", 12, "bold")).pack(side="left", padx=(0, 10))
+        theme = CITY_THEMES["Other"]
+        self.next_button = GradientButton(controls, text="Next Market", command=self.next_market,
+                                          colors=theme["colors"], text_color=theme["on_accent"],
+                                          width=145, height=CONTROL_HEIGHT, bg=BG)
+        self.next_button.pack(side="left", padx=(0, 10))
         self.tax_seg = ctk.CTkSegmentedButton(controls, values=SEG_TAX, command=self.on_tax,
-                                             height=36, corner_radius=12, fg_color=CARD,
+                                             height=CONTROL_HEIGHT, corner_radius=RADIUS_CONTROL, fg_color=CARD,
                                              selected_color=GOLD, selected_hover_color="#d9a43b",
                                              unselected_color=CARD, unselected_hover_color=CARD_ALT,
                                              text_color=TEXT, font=("Segoe UI", 12, "bold"))
@@ -896,13 +1113,14 @@ class AlbionApp(ctk.CTk):
         toolbar.grid(row=0, column=0, sticky="ew", padx=14, pady=(14, 4))
         toolbar.grid_columnconfigure(1, weight=1)
         self.view_seg = ctk.CTkSegmentedButton(toolbar, values=SEG_VIEW, command=self.on_view,
-                                              height=34, fg_color=CARD_ALT, selected_color=BLUE,
+                                              height=CONTROL_HEIGHT, corner_radius=RADIUS_CONTROL, fg_color=CARD_ALT, selected_color=CITY_THEMES["Other"]["tab"],
                                               unselected_color=CARD_ALT, text_color=TEXT,
                                               font=("Segoe UI", 12, "bold"))
         self.view_seg.set(SEG_VIEW[0])
         self.view_seg.grid(row=0, column=0, sticky="w")
         self.search_entry = ctk.CTkEntry(toolbar, placeholder_text="Search items…", width=180,
-                                        height=34, fg_color=CARD_ALT, border_color=BORDER)
+                                        height=CONTROL_HEIGHT, corner_radius=RADIUS_CONTROL, border_width=1,
+                                        fg_color=CARD_ALT, border_color=BORDER)
         self.search_entry.grid(row=0, column=1, sticky="e", padx=(12, 0))
         self.search_entry.bind("<KeyRelease>", lambda event: self.refresh())
         self.view_info = ctk.CTkLabel(box, text="", font=("Segoe UI", 11), text_color=MUTED)
@@ -943,7 +1161,7 @@ class AlbionApp(ctk.CTk):
         self.footer.grid(row=5, column=0, sticky="ew", padx=30, pady=(0, 12))
 
     def _card(self, master, row, column, title, color):
-        frame = ctk.CTkFrame(master, fg_color=CARD, corner_radius=18, border_width=1, border_color=BORDER)
+        frame = ctk.CTkFrame(master, fg_color=CARD, corner_radius=RADIUS_CARD, border_width=1, border_color=BORDER)
         frame.grid(row=row, column=column, padx=6, pady=(0, 6) if row == 0 else (6, 0), sticky="nsew")
         frame.grid_columnconfigure(0, weight=1)
         heading = ctk.CTkLabel(frame, text=title, font=("Segoe UI", 10, "bold"), text_color=MUTED)
@@ -952,7 +1170,7 @@ class AlbionApp(ctk.CTk):
         value.grid(row=1, column=0, sticky="w", padx=18)
         sub = ctk.CTkLabel(frame, text="", font=("Segoe UI", 11), text_color=MUTED)
         sub.grid(row=2, column=0, sticky="w", padx=18, pady=(0, 10))
-        return {"title": heading, "value": value, "sub": sub}
+        return {"title": heading, "value": value, "sub": sub, "frame": frame}
 
     def _startup(self):
         if not npcap_installed():
@@ -1222,7 +1440,7 @@ class AlbionApp(ctk.CTk):
                     shape(box_w - 2, box_h - 2, radius - 1))
         return image.convert("RGB")
 
-    def _layer(self, build):
+    def _layer(self, build, on_outside=None):
         """Full-window dimmed layer with a centred card (built by build(card)). Returns the canvas."""
         backdrop = self._backdrop()
         width, height = backdrop.size
@@ -1246,11 +1464,11 @@ class AlbionApp(ctk.CTk):
                 canvas.itemconfigure(picture, image=canvas.photo)
 
         canvas.bind("<Configure>", relayout)
-        canvas.bind("<Button-1>", lambda event: "break")
+        canvas.bind("<Button-1>", (lambda event: on_outside() or "break") if on_outside else (lambda event: "break"))
         canvas.focus_set()
         return canvas
 
-    def open_modal(self, build, dismiss_value=None):
+    def open_modal(self, build, dismiss_value=None, outside_closes=False):
         """Show a dialog inside this window and wait for build(card, close) to call close(value)."""
         if self._modal_done is not None or self.closed:
             return dismiss_value
@@ -1262,7 +1480,8 @@ class AlbionApp(ctk.CTk):
             result["value"] = value
             done.set(True)
 
-        canvas = self._layer(lambda card: build(card, close))
+        canvas = self._layer(lambda card: build(card, close),
+                             (lambda: close(dismiss_value)) if outside_closes else None)
         canvas.bind("<Escape>", lambda event: close(dismiss_value))
         try:
             self.wait_variable(done)
@@ -1293,7 +1512,7 @@ class AlbionApp(ctk.CTk):
 
     def confirm(self, title, message, confirm_text="Confirm", danger=False):
         theme = self.theme()
-        accent = "#ef4444" if danger else theme["accent"]
+        colors = DANGER_COLORS if danger else theme["colors"]
         on_accent = "#ffffff" if danger else theme["on_accent"]
 
         def build(card, close):
@@ -1303,27 +1522,25 @@ class AlbionApp(ctk.CTk):
                          font=("Segoe UI", 13)).grid(row=1, column=0, sticky="w", padx=26, pady=(10, 22))
             buttons = ctk.CTkFrame(card, fg_color="transparent")
             buttons.grid(row=2, column=0, sticky="e", padx=26, pady=(0, 24))
-            ctk.CTkButton(buttons, text="Cancel", width=110, height=40, corner_radius=12, fg_color=CARD_ALT,
+            ctk.CTkButton(buttons, text="Cancel", width=110, height=42, corner_radius=RADIUS_CONTROL, fg_color=CARD_ALT,
                           hover_color=BORDER, text_color=TEXT, font=("Segoe UI", 12, "bold"),
                           command=lambda: close(False)).pack(side="left", padx=(0, 10))
-            ctk.CTkButton(buttons, text=confirm_text, width=150, height=40, corner_radius=12, fg_color=accent,
-                          hover_color=hover_of(accent), text_color=on_accent, font=("Segoe UI", 12, "bold"),
-                          command=lambda: close(True)).pack(side="left")
+            GradientButton(buttons, text=confirm_text, command=lambda: close(True), colors=colors,
+                           text_color=on_accent, width=170, height=42, bg=CARD).pack(side="left")
 
         return bool(self.open_modal(build, False))
 
     def notify(self, title, message, kind="info"):
-        accent = RED if kind == "error" else self.theme()["accent"]
-        on_accent = BG if kind == "error" else self.theme()["on_accent"]
+        colors = DANGER_COLORS if kind == "error" else self.theme()["colors"]
+        on_accent = "#ffffff" if kind == "error" else self.theme()["on_accent"]
 
         def build(card, close):
             card.grid_columnconfigure(0, weight=1)
             self._dialog_header(card, title, close, None)
             ctk.CTkLabel(card, text=message, wraplength=400, justify="left", text_color=MUTED,
                          font=("Segoe UI", 13)).grid(row=1, column=0, sticky="w", padx=26, pady=(10, 22))
-            ctk.CTkButton(card, text="OK", width=110, height=40, corner_radius=12, fg_color=accent,
-                          hover_color=hover_of(accent), text_color=on_accent, font=("Segoe UI", 12, "bold"),
-                          command=lambda: close(None)).grid(row=2, column=0, sticky="e", padx=26, pady=(0, 24))
+            GradientButton(card, text="OK", command=lambda: close(None), colors=colors, text_color=on_accent,
+                           width=120, height=42, bg=CARD).grid(row=2, column=0, sticky="e", padx=26, pady=(0, 24))
 
         self.open_modal(build, None)
 
@@ -1362,14 +1579,10 @@ class AlbionApp(ctk.CTk):
                 label = f"Other  ({other_label})" if city == "Other" else city
                 if taken:
                     label += "  ·  used"
-                ctk.CTkButton(
-                    grid, text=label, width=224, height=48, corner_radius=14, compound="left",
-                    font=("Segoe UI", 13, "bold"), image=city_icon(city, 28, dim=taken),
-                    fg_color=CARD_ALT if taken else theme["accent"],
-                    hover_color=CARD_ALT if taken else hover_of(theme["accent"]),
-                    text_color=MUTED if taken else theme["on_accent"],
-                    state="disabled" if taken else "normal",
-                    command=lambda value=city: close(value),
+                GradientButton(
+                    grid, text=label, command=lambda value=city: close(value), colors=theme["colors"],
+                    text_color=theme["on_accent"], icon=icon_pil(city), width=224, height=48,
+                    font=("Segoe UI", 13, "bold"), disabled=taken, bg=CARD,
                 ).grid(row=index // 2, column=index % 2, padx=5, pady=5)
 
         return self.open_modal(build, None)
@@ -1387,11 +1600,10 @@ class AlbionApp(ctk.CTk):
                          text_color=TEXT).grid(row=0, column=0, padx=34, pady=(28, 4))
             ctk.CTkLabel(card, text="Pick the city you are in to start counting your orders.",
                          font=("Segoe UI", 13), text_color=MUTED).grid(row=1, column=0, padx=34, pady=(0, 20))
-            ctk.CTkButton(card, text="Select a market", width=220, height=46, corner_radius=14,
-                          fg_color=theme["accent"], hover_color=hover_of(theme["accent"]),
-                          text_color=theme["on_accent"], font=("Segoe UI", 14, "bold"),
-                          command=lambda: self.after(10, self.pick_city_flow)).grid(
-                              row=2, column=0, padx=34, pady=(0, 30))
+            GradientButton(card, text="Select a market", command=lambda: self.after(10, self.pick_city_flow),
+                           colors=theme["colors"], text_color=theme["on_accent"], width=240, height=46,
+                           font=("Segoe UI", 14, "bold"), bg=CARD).grid(
+                               row=2, column=0, padx=34, pady=(0, 30))
 
         self.lock_canvas = self._layer(build)
 
@@ -1434,8 +1646,7 @@ class AlbionApp(ctk.CTk):
         """Colour the app (main card, Next Market, selected tab...) with the city's theme."""
         theme = CITY_THEMES.get(city, CITY_THEMES["Other"])
         self.hero.set_theme(theme)
-        self.next_button.configure(fg_color=theme["accent"], hover_color=hover_of(theme["accent"]),
-                                   text_color=theme["on_accent"])
+        self.next_button.set_style(colors=theme["colors"], text_color=theme["on_accent"])
         self.view_seg.configure(selected_color=theme["tab"], selected_hover_color=theme["tab"])
         selection = theme.get("sel") or shade(theme["tab"], 0.4)
         ttk.Style(self).map("Treeview", background=[("selected", selection)], foreground=[("selected", TEXT)])
@@ -1486,10 +1697,113 @@ class AlbionApp(ctk.CTk):
         self.say("All markets cleared. Pick your market, then browse your own order pages.")
         self.after(100, self.pick_city_flow)
 
+    # --- enlarged views (click a card / All Markets) -----------------------
+    def _wire_clicks(self):
+        accent = lambda: self.theme()["accent"]
+        for key, card in (("gross", self.c_gross), ("tax", self.c_tax), ("orders", self.c_orders),
+                          ("items", self.c_items)):
+            attach_click(card["frame"], lambda key=key: self.open_expanded(key), card["frame"], accent)
+        attach_click(self.hero, lambda: self.open_expanded("all"))
+        self.market_panel.bind_open(lambda: self.open_expanded("all"), accent)
+
+    def market_rows(self):
+        """Saved markets + the current one, with every value the enlarged views need."""
+        entries = [(market, False) for market in self.markets]
+        if self.current_market is not None or self.sell or self.buy or not self.markets:
+            entries.append((self.snapshot(), True))
+        rows = []
+        for market, live in entries:
+            rows.append({"name": market["name"], "city": market["city"], "live": live, "tax": market["tax"],
+                         "gross": market["gross"], "net": market["net"],
+                         "tax_amount": market["gross"] - market["net"],
+                         "orders": len(market["sell"]), "buy_orders": len(market["buy"]),
+                         "items": sum(quantity for _, quantity, _ in market["sell"].values())})
+        return rows
+
+    def open_expanded(self, key):
+        spec = EXPAND_VIEWS[key]
+        rows = self.market_rows()
+        theme = self.theme()
+        values = [row[spec["key"]] for row in rows]
+        total = sum(values)
+        top = max(values) if values and max(values) else 1
+        list_height = max(180, min(440, self.winfo_height() - (420 if key == "all" else 340)))
+
+        def detail(row):
+            if key == "all":
+                return (f"{fmt(row['gross'])} before tax  ·  {row['tax']}% tax  ·  "
+                        f"{fmt(row['orders'])} orders  ·  {fmt(row['items'])} items")
+            if key == "gross":
+                return f"{row['tax']}% tax  →  {fmt(row['net'])} silver with taxes"
+            if key == "tax":
+                return f"{row['tax']}% of {fmt(row['gross'])} silver before tax"
+            if key == "orders":
+                return f"{fmt(row['orders'])} sell  ·  {fmt(row['buy_orders'])} buy"
+            return f"{fmt(row['orders'])} sell orders"
+
+        def build(card, close):
+            card.grid_columnconfigure(0, weight=1)
+            self._dialog_header(card, spec["title"], close, None)
+            ctk.CTkLabel(card, text=spec["sub"], font=("Segoe UI", 12), text_color=MUTED).grid(
+                row=1, column=0, sticky="w", padx=26)
+            big = f"{compact(total)} silver" if spec["money"] else f"{fmt(total)} {spec['unit']}"
+            ctk.CTkLabel(card, text=big, font=("Segoe UI", 36, "bold"), text_color=theme["text"]).grid(
+                row=2, column=0, sticky="w", padx=26)
+            small = f"{fmt(total)} silver" if spec["money"] else f"{fmt(total)} {spec['unit']}"
+            ctk.CTkLabel(card, text=f"{small}  ·  {len(rows)} market{'s' if len(rows) != 1 else ''}",
+                         font=("Segoe UI", 12), text_color=MUTED).grid(row=3, column=0, sticky="w", padx=26)
+            next_row = 4
+            if key == "all":
+                chips = ctk.CTkFrame(card, fg_color="transparent")
+                chips.grid(row=next_row, column=0, sticky="ew", padx=20, pady=(14, 0))
+                next_row += 1
+                totals = (("BEFORE TAX", sum(r["gross"] for r in rows), GOLD, True),
+                          ("TAX", sum(r["tax_amount"] for r in rows), RED, True),
+                          ("ORDERS", sum(r["orders"] for r in rows), BLUE, False),
+                          ("ITEMS", sum(r["items"] for r in rows), VIOLET, False))
+                for index, (label, amount, color, money) in enumerate(totals):
+                    chips.grid_columnconfigure(index, weight=1, uniform="chip")
+                    chip = ctk.CTkFrame(chips, fg_color=CARD_ALT, corner_radius=RADIUS_CONTROL)
+                    chip.grid(row=0, column=index, padx=6, sticky="ew")
+                    ctk.CTkLabel(chip, text=label, font=("Segoe UI", 10, "bold"), text_color=MUTED).pack(
+                        anchor="w", padx=14, pady=(10, 0))
+                    ctk.CTkLabel(chip, text=compact(amount) if money else fmt(amount),
+                                 font=("Segoe UI", 20, "bold"), text_color=color).pack(
+                                     anchor="w", padx=14, pady=(0, 10))
+            scroll = ctk.CTkScrollableFrame(card, fg_color="transparent", width=660, height=list_height,
+                                            corner_radius=0)
+            scroll.grid(row=next_row, column=0, sticky="ew", padx=18, pady=(14, 22))
+            scroll.grid_columnconfigure(0, weight=1)
+            if not rows:
+                ctk.CTkLabel(scroll, text="No market yet.", text_color=MUTED, font=("Segoe UI", 13)).grid(
+                    row=0, column=0, pady=30)
+            for index, row in enumerate(rows):
+                row_theme = CITY_THEMES.get(row["city"], CITY_THEMES["Other"])
+                item = ctk.CTkFrame(scroll, fg_color=CARD_ALT, corner_radius=RADIUS_CONTROL)
+                item.grid(row=index, column=0, sticky="ew", pady=5)
+                item.grid_columnconfigure(1, weight=1)
+                ctk.CTkLabel(item, text="", image=city_icon(row["city"], 30)).grid(
+                    row=0, column=0, rowspan=2, padx=(14, 10), pady=(12, 0))
+                ctk.CTkLabel(item, text=row["name"] + ("  ·  current" if row["live"] else ""),
+                             font=("Segoe UI", 14, "bold"),
+                             text_color=GREEN if row["live"] else TEXT).grid(
+                                 row=0, column=1, sticky="w", pady=(12, 0))
+                value = row[spec["key"]]
+                ctk.CTkLabel(item, text=f"{fmt(value)} silver" if spec["money"] else fmt(value),
+                             font=("Segoe UI", 14, "bold"), text_color=row_theme["text"]).grid(
+                                 row=0, column=2, sticky="e", padx=16, pady=(12, 0))
+                ctk.CTkLabel(item, text=detail(row), font=("Segoe UI", 11), text_color=MUTED).grid(
+                    row=1, column=1, columnspan=2, sticky="w")
+                bar = GradientBar(item, height=10, bg=CARD_ALT)
+                bar.grid(row=2, column=0, columnspan=3, sticky="ew", padx=16, pady=(8, 14))
+                bar.set(value / top, row_theme["colors"])
+
+        self.open_modal(build, None, outside_closes=True)
+
     def refresh(self):
         gross = self.gross()
         net = net_total(gross, self.tax)
-        self.hero.set(net, f"{fmt(net)} silver · after {self.tax}% tax",
+        self.hero.set(net, f"{fmt(net)} silver",
                       self.current_market["city"] if self.current_market else None, self.current_name())
         self.c_gross["value"].configure(text=compact(gross))
         self.c_gross["sub"].configure(text=f"{fmt(gross)} silver")
@@ -1568,7 +1882,7 @@ class AlbionApp(ctk.CTk):
         try:
             if path.lower().endswith(".txt"):
                 with open(path, "w", encoding="utf-8") as output:
-                    output.write("ALBION ORDERS TOTAL\nMade by Shibarakiri - v1.0.1\n\n")
+                    output.write("ALBION ORDERS TOTAL\nMade by Shibarakiri - v1.2.0\n\n")
                     output.write(f"ALL MARKETS WITH TAXES: {total} silver\n\n")
                     for index, market in enumerate(markets):
                         status = "current" if index == len(self.markets) else "saved"
@@ -2628,7 +2942,7 @@ ICONS_B64 = {
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Albion Orders Total - v1.0.1")
+    parser = argparse.ArgumentParser(description="Albion Orders Total - v1.2.0")
     parser.add_argument("--list", action="store_true", help="List network interfaces")
     parser.add_argument("--iface", help="Network interface name")
     parser.add_argument("--demo", action="store_true", help="Use fictional data without capturing traffic")

@@ -66,6 +66,45 @@ The interface supports:
 
 ### Tracking multiple markets
 
+When the application starts, it asks which market (city) you are in. The question, the confirmations and the messages all appear **inside the main window**, over a slightly greyed background (no separate windows).
+
+If you close the city picker with the **✕** (or Esc), the application stays locked behind a "No market selected" layer until you click **Select a market** and choose a city.
+
+**Next Market** asks for confirmation, then asks for the next city. It saves the
+current market (including its tax rate), clears the current sell and buy orders,
+and starts the new market empty. Every market stays part of the **All Markets**
+total, and the current market is always included in it.
+
+- Each city can be used **once**: Lymhurst, Fort Sterling, Thetford, Martlock,
+  Bridgwatch, Brecilien and Caerleon. A city that is already used is greyed out.
+- **Other** can be picked as many times as needed and is numbered:
+  Other 1, Other 2, Other 3...
+- Closing the city picker during Next Market cancels it, nothing is saved.
+- Each city has its own **theme**. When you pick a city, the whole application takes its colours:
+  the main card gradient, the **Next Market** button, the selected tab, and the city's bar and amount in
+  **All Markets**. **Other** uses a neutral gray theme.
+
+| City | Theme |
+| --- | --- |
+| Lymhurst | green |
+| Fort Sterling | ice white / steel blue |
+| Thetford | deep purple |
+| Martlock | sky blue |
+| Bridgwatch | orange |
+| Brecilien | magenta / wine |
+| Caerleon | black with deep red |
+| Other | neutral gray |
+
+The colours you suggested were used as inspiration; the exact tones are tuned to look good on the dark
+interface and are defined in `CITY_THEMES` at the top of `albion_orders_total.py` (gradient colours, selected tab,
+main card glow).
+
+Each city also has its own small icon (city window, **All Markets**, the main card
+and the line under the tabs). The crown icon marks the premium (4%) sales tax.
+The icons are embedded in `albion_orders_total.py` (`ICONS_B64`), so the build
+command does not change and no extra file is needed.
+
+
 **Reset** deletes all saved markets and the current market after confirmation,
 then asks for your city again. Saved markets exist only in memory, so export
 them before closing the application if you need to keep the data.
@@ -74,12 +113,32 @@ Only orders observed since the last reset or market transition are counted.
 This is not an automatic inventory: orders that disappear from the game are
 not removed unless the current market is cleared.
 
+### Enlarged views
+
+Click the main card, **All Markets**, or any of the small cards (**Before tax**, **Estimated tax**,
+**Orders**, **Items**) to open an enlarged view inside the window. It shows the value for every saved
+market plus the current one, each with its city icon and a gradient bar. Close it with the **✕**, **Esc**,
+or by clicking outside. **All Markets** also shows the totals (before tax, tax, orders, items).
+
+Each city has a multi-colour gradient (`colors` in `CITY_THEMES`) used for the city picker buttons, the
+**Next Market** button and the bars. Buttons, tabs, the search box and the tax selector all share the same
+height and corner radius (`CONTROL_HEIGHT`, `RADIUS_CONTROL`, `RADIUS_CARD` at the top of the file).
+
+## Optional assets
+
+Place these files beside `albion_orders_total.py` when running from source:
+
+- `coin.png` — coin image used by the interface and included in packaged
+  builds.
+- `icon.png` or `icon.ico` — optional application icon.
+
 ## Building an executable
 
-Install PyInstaller and run:
+With `coin.png` present, install PyInstaller and run:
 
 ```powershell
-python -m PyInstaller --noconfirm --noconsole --onefile --windowed --collect-all customtkinter albion_orders_total.py
+python -m pip install pyinstaller
+pyinstaller --noconfirm --onefile --windowed --collect-all customtkinter --add-data "coin.png;." albion_orders_total.py
 ```
 
 The generated executable is placed in `dist\`.
